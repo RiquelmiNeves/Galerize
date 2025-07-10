@@ -122,4 +122,28 @@ def excluir(request, pk):
         else:
             return HttpResponse("Faça o login para acessar!")
 
+def editar_verificacao(request, pk):
+    if request.method == "GET":
+        if request.user.is_authenticated:
+            lista_notas = Nota.objects.get(pk=pk)
+            dicionario_notas = {'lista_notas':lista_notas}
+            return render(request, 'usuarios/editar.html', dicionario_notas)
+        else:
+            return HttpResponse("Faça o login para acessar!")
+
+def editar(request, pk):
+    if request.method == "POST":
+        if request.user.is_authenticated:
+            nome_aluno = request.user.first_name
+            disciplina = request.POST.get('disciplina')
+            nota_atividades = request.POST.get('nota_atividades')
+            nota_trabalho = request.POST.get('nota_trabalho')
+            nota_prova = request.POST.get('nota_prova')
+            media = int(nota_atividades) + int(nota_trabalho) + int(nota_prova)
+            
+            Nota.objects.filter(pk=pk).update(nome_aluno=nome_aluno,disciplina=disciplina, nota_atividades=nota_atividades, nota_trabalho=nota_trabalho,nota_prova=nota_prova,media=media)
+            
+            return HttpResponseRedirect(reverse('alterar'))
+        else:
+            return HttpResponse("Faça o login para acessar!")
         
