@@ -1,150 +1,154 @@
 Documentação do Projeto: Galeria de Fotos Pessoal
-O objetivo principal deste projeto é criar uma aplicação web em Django que permita aos usuários fazer upload, visualizar, editar, excluir e filtrar suas fotos pessoais. Abandonamos a funcionalidade de "notas" para focar inteiramente na gestão de imagens.
+Este documento detalha a arquitetura, funcionalidades e implementação do projeto de Galeria de Fotos Pessoal, desenvolvido com Django. O objetivo principal é permitir que usuários façam upload, visualizem, editem, excluam e filtrem suas fotos de forma intuitiva e organizada. A funcionalidade anterior de "notas" foi removida para focar exclusivamente na gestão de imagens.
 
-Arquitetura e Armazenamento de Dados
-Django Framework: Utilizado para a estrutura do backend (views, URLs, templates).
+🚀 Visão Geral do Projeto
+O projeto oferece uma plataforma web para que cada usuário autenticado tenha sua própria galeria de fotos.
 
-Armazenamento de Metadados: Em vez de um banco de dados relacional (models.py para notas), os metadados das fotos (título, descrição, tags, nome do arquivo, etc.) são armazenados em um arquivo fotos_data.json. Isso simplifica a persistência de dados sem a necessidade de migrações de banco de dados para este propósito.
+✨ Principais Funcionalidades
+Autenticação de Usuários: Login, cadastro e logout de usuários.
 
-Armazenamento de Imagens: As imagens em si são salvas fisicamente em um diretório no sistema de arquivos, configurado em settings.py como MEDIA_ROOT.
+Upload de Fotos: Envio de novas imagens com título, descrição e tags.
 
-Como a Inserção de Imagens Funciona (e a Biblioteca Pillow)
-No seu projeto, o processo de inserção e armazenamento de imagens é feito da seguinte forma:
+Galeria de Fotos: Visualização de todas as fotos do usuário em um layout responsivo.
 
-Formulário HTML: No upload_foto.html, um campo input type="file" name="imagem" permite ao usuário selecionar uma imagem do seu dispositivo. O atributo enctype="multipart/form-data" no formulário é essencial para o envio de arquivos.
+Edição de Fotos: Alteração dos metadados (título, descrição, tags) de fotos existentes.
 
-views.py (upload_foto função):
+Exclusão de Fotos: Remoção de fotos da galeria e do armazenamento físico.
 
-Quando o formulário é enviado (request.method == 'POST'), o arquivo da imagem é acessado via request.FILES.get('imagem').
+Filtro Avançado de Fotos: Página dedicada para pesquisar fotos por título, tags ou data de upload.
 
-O nome do arquivo é tornado único adicionando um timestamp.
+Favicon Personalizado: Ícone na aba do navegador para identificação do site.
 
-Um diretório de upload (MEDIA_ROOT/fotos/) é criado se não existir.
+Página 404 Personalizada: Mensagem amigável para URLs não encontradas.
 
-O arquivo é lido em "pedaços" (imagem_file.chunks()) e salvo no sistema de arquivos no caminho definido.
+🏛️ Arquitetura e Armazenamento de Dados
+O projeto utiliza o framework web Django para o backend, com a seguinte estrutura de armazenamento:
 
-Os metadados da foto (título, descrição, tags formatadas, nome do arquivo único, ID do usuário, data de upload e um id único gerado por uuid.uuid4()) são coletados e salvos no arquivo fotos_data.json.
+Django Framework: Base para o desenvolvimento web, gerenciando views, URLs, modelos e templates.
 
-A Biblioteca Pillow
-Você mencionou ter que baixar uma biblioteca para inserir imagens. No contexto de projetos Django que lidam com imagens, a biblioteca mais comum e essencial é o Pillow (uma "fork" do PIL - Python Imaging Library).
+Banco de Dados (SQLite): O db.sqlite3 (ou outro SGBD configurado) é utilizado para armazenar os metadados das fotos (título, descrição, tags, ID do usuário, data de upload) e o caminho relativo para o arquivo de imagem. Importante: Os dados binários das imagens (as fotos em si) não são armazenados diretamente no banco de dados.
 
-O que ela faz: Embora seu código atual para upload_foto apenas salve o arquivo bruto no disco, o Pillow é fundamental para operações mais avançadas com imagens, como:
+Sistema de Arquivos: As imagens reais são salvas fisicamente no disco rígido do servidor (ou computador local em desenvolvimento). O diretório de armazenamento é configurado através de MEDIA_ROOT no settings.py.
 
-Redimensionamento: Alterar as dimensões da imagem (por exemplo, criar miniaturas).
+📸 Como o Armazenamento de Imagens Funciona
+O processo de upload e armazenamento de imagens é central para a aplicação e segue as melhores práticas do Django:
 
-Corte (Cropping): Selecionar uma parte específica da imagem.
+Campo ImageField no Modelo (usuarios/models.py):
 
-Conversão de Formato: Converter entre formatos de imagem (JPEG, PNG, GIF, etc.).
+O modelo Foto possui um campo imagem = models.ImageField(upload_to='fotos/').
 
-Processamento de Imagem: Aplicar filtros, ajustar brilho/contraste, etc.
+ImageField é um tipo de campo específico do Django para lidar com uploads de arquivos de imagem.
 
-Validação: Verificar se um arquivo é realmente uma imagem válida.
+upload_to='fotos/' instrui o Django a criar uma subpasta chamada fotos dentro do diretório MEDIA_ROOT e salvar os arquivos de imagem lá.
 
-Uso em Django: Em projetos Django que usam o sistema de modelos com ImageField (o que não é o seu caso para o armazenamento principal, já que você usa JSON), o Pillow é um pré-requisito obrigatório. Mesmo sem ImageField, se você precisasse fazer qualquer uma das operações acima após o upload, você usaria o Pillow. A instalação (pip install Pillow) prepara o ambiente para que essas capacidades estejam disponíveis.
+Configurações MEDIA_ROOT e MEDIA_URL (seu_projeto/settings.py):
 
-No seu caso, o views.py não chama explicitamente o Pillow, mas tê-lo instalado é uma boa prática em qualquer projeto Django que lide com upload de imagens, pois ele é a ferramenta padrão para qualquer processamento que possa surgir no futuro.
+MEDIA_ROOT: Define o caminho absoluto no sistema de arquivos onde todos os arquivos de mídia (incluindo as fotos) serão armazenados. Ex: /home/usuario/seu_projeto/media/.
 
-Detalhes das Alterações por Arquivo
-A seguir, um resumo das modificações implementadas em cada arquivo:
+MEDIA_URL: Define a URL base que será usada para acessar esses arquivos de mídia através do navegador. Ex: /media/.
 
-1. views.py
-Remoção de Funcionalidades de Notas: Todas as funções relacionadas a Nota (como lancar, alterar, visualizar, excluir_verificacao e editar_verificacao de notas) foram removidas, junto com a importação do modelo Nota.
+Quando uma imagem é salva, o Django a coloca em MEDIA_ROOT/fotos/nome_do_arquivo.jpg, e a URL para acessá-la será MEDIA_URL/fotos/nome_do_arquivo.jpg.
 
-Geração de ID Único para Fotos: Na função upload_foto, o id da nova foto agora é gerado usando uuid.uuid4(), garantindo um identificador globalmente único para cada foto, o que é crucial para operações de edição e exclusão.
+Processo de Upload na View (usuarios/views.py - upload_foto):
 
-Funções Auxiliares para Fotos:
+O formulário HTML (upload_foto.html) deve ter enctype="multipart/form-data" para permitir o envio de arquivos.
 
-get_photo_by_id(photo_id): Encontra uma foto no fotos_data.json pelo seu ID.
+Na view upload_foto, o arquivo é recebido via request.FILES.get('imagem').
 
-update_photo_data(updated_photo): Atualiza os dados de uma foto existente no JSON.
+Ao criar uma nova instância do modelo Foto e atribuir imagem=imagem_file, e em seguida chamar nova_foto.save(), o Django automaticamente:
 
-delete_photo_from_data(photo_id): Remove a foto do JSON.
+Salva o arquivo de imagem no diretório MEDIA_ROOT/fotos/.
 
-Funções de Edição de Fotos:
+Armazena o caminho relativo do arquivo (ex: fotos/nome_do_arquivo.jpg) no campo imagem do registro no banco de dados.
 
-editar_foto_verificacao(request, id_foto): Carrega os dados da foto e exibe o formulário de edição (editar_foto.html), preenchendo os campos com os valores atuais e preparando as tags para exibição no campo de texto (removendo o #).
+Acessando a Imagem no Template (.url):
 
-editar_foto(request, id_foto): Processa o formulário enviado, atualiza o título, descrição e tags da foto no JSON, aplicando a mesma lógica de formatação de tags do upload.
+Quando um objeto Foto é recuperado do banco de dados (ex: foto_obj), o campo foto_obj.imagem é um objeto que representa o arquivo.
 
-Funções de Exclusão de Fotos:
+A propriedade .url (ex: foto_obj.imagem.url) é automaticamente gerada pelo Django para fornecer a URL completa do arquivo de imagem, permitindo que o navegador a exiba.
 
-excluir_foto_verificacao(request, id_foto): Carrega os dados da foto e exibe a página de confirmação de exclusão (excluir_foto.html).
+📦 A Biblioteca Pillow
+A biblioteca Pillow (pip install Pillow) é um pré-requisito essencial para o Django quando se trabalha com ImageField. Embora não seja explicitamente chamada em cada linha do seu views.py para salvar a imagem, ela é fundamental nos bastidores para:
 
-excluir_foto(request, id_foto): Remove os metadados da foto do fotos_data.json e também exclui o arquivo de imagem físico do disco.
+Processamento de Imagem: Redimensionamento, corte, conversão de formatos, etc.
 
-Lógica de Filtro na galeria:
+Validação: Verificar se o arquivo enviado é realmente uma imagem válida.
 
-Adicionada funcionalidade de busca por q (termo de busca por título/descrição) e tag (filtro por tag clicável).
+Manipulação Interna: O ImageField do Django utiliza o Pillow para lidar com as operações de arquivo de imagem.
 
-all_unique_tags é coletado para gerar botões de filtro na interface.
+🛠️ Configuração e Instalação do Projeto
+Siga estes passos para configurar e executar o projeto em seu ambiente local.
 
-2. urls.py
-Remoção de URLs de Notas: Todas as entradas de URL que apontavam para as funcionalidades de notas foram removidas.
+Pré-requisitos
+Python 3.x
 
-Adição de URLs de Fotos: Novas URLs foram adicionadas para as funções editar_foto_verificacao, editar_foto, excluir_foto_verificacao e excluir_foto, usando <str:id_foto> para capturar o ID único da foto.
+pip (gerenciador de pacotes do Python)
 
-3. base.html
-Atualização do Título: O título principal da aplicação e o texto no navbar-brand foram alterados para "Minha Galeria" ou "Galeria de Fotos", refletindo o novo foco do projeto.
+🚀 Instalação
+Clone o Repositório (se aplicável):
 
-Remoção de Cards de Notas: Os cards que direcionavam para as funcionalidades de "Lançar Notas", "Alterar Notas" e "Visualizar Notas" foram removidos do bloco {% block conteudo %}.
+git clone <url_do_seu_repositorio>
+cd <nome_da_pasta_do_projeto>
 
-Manutenção/Ajuste de Cards de Fotos: Os cards para "Upload de Fotos" e "Galeria de Fotos" foram mantidos e estilizados.
+Crie e Ative um Ambiente Virtual (Recomendado):
 
-Navegação Simplificada: A barra de navegação foi ajustada para incluir apenas os links relevantes para o fluxo da galeria (Página inicial, Upload Foto, Galeria, Logout).
+python -m venv venv
+# No Windows:
+venv\Scripts\activate
+# No macOS/Linux:
+source venv/bin/activate
 
-4. upload_foto.html
-Estilização Bootstrap: Melhorias na estilização dos campos de formulário usando classes Bootstrap (form-label, form-control, mb-3, card, card-body) para um layout mais limpo e responsivo.
+Instale as Dependências:
 
-Prévia da Imagem: Aprimoramento da prévia da imagem selecionada com classes img-fluid e rounded para melhor responsividade e visual.
+pip install Django Pillow
 
-Feedback ao Usuário: Adicionado um pequeno texto (small class="form-text text-muted") abaixo do campo de tags para informar que as tags serão formatadas automaticamente.
+Configurações de Mídia e Estáticos (seu_projeto/settings.py):
+Abra seu_projeto/settings.py (o arquivo settings.py que está na pasta principal do seu projeto, ex: Galerize/novosite/settings.py).
+Adicione ou verifique as seguintes linhas no final do arquivo:
 
-5. galeria.html
-Layout Responsivo: Implementado um sistema de grid Bootstrap (row-cols-1 row-cols-sm-2 row-cols-md-3 g-4) para que as fotos se organizem de forma responsiva em diferentes tamanhos de tela.
+import os # Certifique-se de que esta linha está no topo do arquivo
 
-Estilo dos Cards: Cards de fotos estilizados com h-100 (altura igual), shadow-sm (sombra) e object-fit: cover para as imagens, garantindo um visual uniforme e profissional.
+# Diretório base do projeto (geralmente já configurado)
+# BASE_DIR = Path(__file__).resolve().parent.parent # Para Django 3.x+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # Para Django mais antigos
 
-Exibição Formatada de Tags: Agora exibe {{ foto.tags_display }} que é a string formatada das tags gerada no views.py. As tags individuais dentro de cada card são também transformadas em links clicáveis (badge bg-info) que filtram a galeria.
-
-Botões de Edição e Exclusão: Adicionados botões "Editar" e "Excluir" em cada card de foto, que levam às respectivas páginas de gerenciamento da foto.
-
-Formulário de Busca: Integrado um formulário de busca (type="search") que permite filtrar fotos por título ou descrição.
-
-Filtro por Tags: Uma seção de botões de tags é exibida (baseada em unique_tags do views.py), permitindo aos usuários clicar em uma tag para filtrar a galeria. Um botão "Limpar Filtro" é exibido quando um filtro está ativo.
-
-Mensagem de Galeria Vazia: Melhorada a estilização da mensagem exibida quando não há fotos.
-
-6. editar_foto.html
-Formulário de Edição: Template para editar título, descrição e tags de uma foto específica.
-
-Prévia da Imagem: Exibe uma prévia da imagem (não editável nesta tela).
-
-Preenchimento de Campos: Campos pré-preenchidos com os dados existentes da foto.
-
-Formatação de Tags: O campo de tags exibe as tags sem o # para facilitar a edição, mas a lógica no views.py adicionará o # novamente ao salvar.
-
-7. excluir_foto.html
-Confirmação de Exclusão: Template simples para confirmar a exclusão de uma foto, exibindo o título da foto e uma prévia.
-
-Botões de Ação: Botões para "Sim, Excluir Foto" (que envia o POST para a função de exclusão) e "Não, Voltar".
-
-Para Colocar Tudo em Funcionamento
-Copie e cole o código fornecido para cada arquivo em seus respectivos locais no projeto.
-
-Verifique settings.py: Certifique-se de que MEDIA_URL e MEDIA_ROOT estão configurados corretamente para o Django servir os arquivos de mídia. Exemplo:
-
-Python
-
-# settings.py
-import os
-
-MEDIA_URL = '/media/'
+# Configurações de Mídia (Uploads de Usuários)
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-E que você tenha adicionado as configurações de rota de mídia em seu_projeto/urls.py (o arquivo principal do projeto, não o do app usuarios):
+MEDIA_URL = '/media/'
 
-Python
+# Configurações de Arquivos Estáticos (CSS, JS, Imagens de Tema)
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'), # Aponta para a pasta 'static' na raiz do seu projeto
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Usado para 'collectstatic' em produção
 
-# seu_projeto/urls.py
+# Configuração de Templates para encontrar templates na raiz do projeto (para 404.html)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # Adicione esta linha
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+# Para a página 404 personalizada (apenas para teste em desenvolvimento)
+# NÃO DEIXE DEBUG = False EM PRODUÇÃO SEM CONFIGURAÇÃO ADEQUADA DE ALLOWED_HOSTS
+# DEBUG = False
+# ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] # Ou o IP/domínio do seu servidor
+
+Configurações de URLs (seu_projeto/urls.py):
+Abra seu_projeto/urls.py (o arquivo urls.py que está na pasta principal do seu projeto).
+Adicione as importações e as linhas no final de urlpatterns para servir arquivos estáticos e de mídia em desenvolvimento:
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -152,19 +156,237 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('usuarios.urls')), # Inclua suas URLs do app usuarios
+    path('', include('usuarios.urls')), # Inclua suas URLs do app 'usuarios'
 ]
 
+# Configuração para servir arquivos estáticos e de mídia em ambiente de desenvolvimento
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-Instale Pillow: Se ainda não o fez, instale a biblioteca Pillow:
 
-Bash
+Crie as Pastas Necessárias:
+Na raiz do seu projeto, crie as seguintes pastas se ainda não existirem:
 
-pip install Pillow
-Reinicie o Servidor Django:
+media/
 
-Bash
+static/
+
+templates/
+
+Mova Arquivos Estáticos:
+Certifique-se de que seu bootstrap.min.css está em static/css/ e seu favicon.ico está em static/.
+
+Realize as Migrações do Banco de Dados:
+
+Atenção: Se você já tinha dados e estava usando UUIDs e agora mudou para IDs numéricos auto-incrementais, você precisará excluir seus arquivos de migração em usuarios/migrations/ (exceto __init__.py) e excluir seu db.sqlite3 antes de rodar os comandos abaixo. Isso apagará todos os dados existentes.
+
+python manage.py makemigrations usuarios
+python manage.py migrate
+
+Crie um Superusuário (se você recriou o banco de dados):
+
+python manage.py createsuperuser
+
+Siga as instruções para criar suas credenciais de administrador.
+
+▶️ Executando o Projeto
+Inicie o servidor de desenvolvimento Django:
 
 python manage.py runserver
-Com essas atualizações, seu projeto agora é uma galeria de fotos robusta e interativa!
+
+Acesse o site no seu navegador: http://127.0.0.1:8000/login/ (ou a URL que você configurou para o login).
+
+💻 Detalhes da Implementação por Arquivo
+usuarios/models.py
+from django.db import models
+from django.contrib.auth.models import User
+
+class Foto(models.Model):
+    # Chave primária auto-incremental (padrão do Django)
+    # O campo 'id' será criado automaticamente como um AutoField.
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    titulo = models.CharField(max_length=255)
+    descricao = models.TextField(blank=True, null=True)
+    imagem = models.ImageField(upload_to='fotos/') # Salva em MEDIA_ROOT/fotos/
+    tags = models.CharField(max_length=255, blank=True, null=True, help_text="Separe as tags por vírgulas")
+    data_upload = models.DateTimeField(auto_now_add=True) # Data e hora de criação automática
+
+    def __str__(self):
+        return self.titulo
+
+Foto Model: Define a estrutura dos dados para cada foto, incluindo o relacionamento com o usuário (ForeignKey) e o campo ImageField para o arquivo da imagem. O ID é numérico e auto-incremental por padrão.
+
+usuarios/views.py
+Contém toda a lógica de backend para as funcionalidades da aplicação.
+
+login(request): Autentica o usuário e redireciona para a página home em caso de sucesso.
+
+logout(request): Desloga o usuário e redireciona para a página de login.
+
+cadastro(request): Cria um novo usuário e, em caso de sucesso, loga-o e redireciona para home.
+
+home(request): Se o usuário estiver autenticado, renderiza o template home.html (com os cards de navegação). Caso contrário, redireciona para login.
+
+upload_foto(request):
+
+Processa o formulário de upload.
+
+Recebe o arquivo de imagem via request.FILES.
+
+Formata as tags (adicionando # e juntando-as em uma string).
+
+Cria e salva uma nova instância do modelo Foto no banco de dados, o que também salva o arquivo de imagem no MEDIA_ROOT.
+
+galeria(request):
+
+Recupera todas as fotos do usuário logado, ordenadas pela data de upload mais recente.
+
+Implementa uma busca básica por título/descrição e tags (usando Q objects para consultas complexas).
+
+Processa as tags para exibição no template (lista para iteração, string para exibição simples).
+
+Passa o foto_obj.imagem.url para o template para exibição da imagem.
+
+editar_foto_verificacao(request, id_foto):
+
+Recupera uma foto específica pelo id_foto e verifica se pertence ao usuário logado.
+
+Prepara a string de tags para preencher o campo de input no formulário de edição (removendo #).
+
+Renderiza editar_foto.html, passando o objeto foto completo.
+
+editar_foto(request, id_foto):
+
+Processa a submissão do formulário de edição.
+
+Atualiza o título, descrição e tags da foto no banco de dados.
+
+Redireciona para a galeria.
+
+excluir_foto_verificacao(request, id_foto):
+
+Recupera uma foto específica e verifica a permissão.
+
+Renderiza excluir_foto.html para confirmação da exclusão.
+
+excluir_foto(request, id_foto):
+
+Processa a confirmação de exclusão.
+
+Deleta o objeto Foto do banco de dados, o que também aciona a exclusão do arquivo físico associado ao ImageField.
+
+filtrar_fotos(request):
+
+Nova view dedicada à funcionalidade de filtro avançado.
+
+Recupera as 15 fotos mais recentes por padrão se nenhum filtro for aplicado.
+
+Permite filtrar por titulo, tags ou data (usando Q objects para combinar filtros).
+
+Renderiza filtrar_fotos.html com os resultados.
+
+usuarios/urls.py
+Define os mapeamentos de URL para as views do aplicativo usuarios.
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('login/', views.login, name = 'login'),
+    path('cadastro/', views.cadastro, name = 'cadastro'),
+    path('home/', views.home, name = 'home'),
+    path('logout/', views.logout, name = 'logout'),
+    
+    path('upload_foto/', views.upload_foto, name='upload_foto'),
+    path('galeria/', views.galeria, name='galeria'),
+    path('editar_foto_verificacao/<int:id_foto>/', views.editar_foto_verificacao, name='editar_foto_verificacao'),
+    path('editar_foto/<int:id_foto>/', views.editar_foto, name='editar_foto'),
+    path('excluir_foto_verificacao/<int:id_foto>/', views.excluir_foto_verificacao, name='excluir_foto_verificacao'),
+    path('excluir_foto/<int:id_foto>/', views.excluir_foto, name='excluir_foto'),
+    path('filtrar_fotos/', views.filtrar_fotos, name='filtrar_fotos'),
+]
+
+Templates HTML (usuarios/templates/usuarios/)
+Os templates são responsáveis pela interface do usuário e usam Bootstrap para estilização responsiva.
+
+base.html:
+
+Template base que define a estrutura comum (cabeçalho, navbar, footer, inclusão de Bootstrap).
+
+Inclui links de navegação para home, upload_foto, galeria, filtrar_fotos e logout.
+
+Define o favicon do site.
+
+Contém o bloco {% block conteudo %} onde o conteúdo específico de cada página é inserido.
+
+Possui cards de navegação na página inicial para "Upload de Fotos", "Galeria de Fotos" e "Filtrar Fotos".
+
+login.html: Formulário de login com campos para e-mail e senha, e um botão para ir ao cadastro.
+
+cadastro.html: Formulário de cadastro com campos para nome, e-mail e senha, e um botão para ir ao login.
+
+upload_foto.html:
+
+Formulário para enviar novas fotos.
+
+Possui enctype="multipart/form-data" para permitir o upload de arquivos.
+
+Inclui um script JavaScript para exibir uma prévia da imagem selecionada antes do upload.
+
+galeria.html:
+
+Exibe as fotos do usuário em um layout de grade responsivo (cards).
+
+Cada card de foto mostra título, descrição, tags e data de upload.
+
+Botões "Editar" e "Excluir" em cada card, que levam às respectivas páginas de gerenciamento.
+
+Seção para tags clicáveis que filtram a galeria.
+
+editar_foto.html:
+
+Formulário para editar os metadados de uma foto.
+
+Exibe a imagem da foto atual usando {{ foto.imagem.url }} para que o usuário saiba qual foto está editando, mas não permite a troca da imagem.
+
+Campos pré-preenchidos com os dados existentes.
+
+excluir_foto.html:
+
+Página de confirmação para excluir uma foto.
+
+Exibe a imagem da foto usando {{ foto.imagem.url }} para confirmação visual.
+
+Botões "Sim, Excluir Foto" e "Não, Voltar".
+
+filtrar_fotos.html:
+
+Página dedicada para pesquisar fotos.
+
+Apresenta os 15 resultados mais recentes por padrão.
+
+Possui campos de input separados para filtrar por título, tags e data (com seletor de calendário).
+
+Exibe os resultados em um formato de lista vertical, com imagem, título, tags, data e botões de "Editar" e "Apagar" para cada item.
+
+templates/404.html (Página de Erro Personalizada)
+Localizado na pasta templates/ na raiz do projeto.
+
+Exibido pelo Django quando uma URL não é encontrada (DEBUG = False).
+
+Inclui um botão para retornar à página inicial.
+
+✅ Testes e Verificações Finais
+Após qualquer alteração, especialmente em settings.py, urls.py, models.py ou views.py, siga estes passos:
+
+Reinicie o servidor Django: python manage.py runserver
+
+Limpe o cache do navegador: Pressione Ctrl + Shift + R (ou Cmd + Shift + R no Mac) em suas páginas.
+
+Teste o fluxo completo: Login, cadastro, upload de novas fotos, visualização na galeria, edição, exclusão e uso do filtro.
+
+Verifique a pasta media/fotos/: Após o upload, confirme se o arquivo da imagem está fisicamente lá.
+
+Verifique o painel /admin: Confirme se os registros das fotos estão corretos e se o campo "Imagem" está preenchido e é clicável.
+
+Com esta documentação abrangente, você tem um guia completo para entender e gerenciar seu projeto de Galeria de Fotos Pessoal.
