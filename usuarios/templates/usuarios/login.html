@@ -32,11 +32,14 @@
                       Esqueceu a senha?
                     </label>
                   </div>
-                  <div class="d-grid">
+                  <div class="d-grid mb-3"> {# Adicionado mb-3 para espaçamento abaixo do botão de login #}
                     <button class="btn btn-primary btn-login text-uppercase fw-bold" type="submit">Login</button>
                   </div>
                   <hr class="my-4">
                   
+                  <div class="d-grid">
+                    <a class="btn btn-success btn-block text-uppercase fw-bold" href="{% url 'cadastro' %}">Não tem conta? Cadastre-se!</a>
+                  </div>
                 </form>
               </div>
             </div>

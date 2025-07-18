@@ -1,0 +1,65 @@
+{% extends 'usuarios/base.html' %}
+
+{% block aba %}Enviar Foto{% endblock %}
+
+{% block titulo %}Enviar Sua Foto{% endblock %}
+
+{% block conteudo %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Nova Postagem</h3>
+                <p class="card-text text-muted">Preencha as informações para sua foto.</p>
+                <hr>
+                <form action="{% url 'upload_foto' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3"> {# Bootstrap margin-bottom utility class #}
+                        <label for="imagem" class="form-label">Selecionar Imagem:</label>
+                        <input type="file" class="form-control" id="imagem" name="imagem" accept="image/*" required>
+                        <div id="imagePreview" class="mt-3 text-center">
+                            {# Image preview will appear here #}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título da Foto:</label>
+                        <input type="text" class="form-control" id="titulo" name="titulo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição (opcional):</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="3"></textarea>
+                    </div>
+                    <div class="mb-4"> {# Slightly more margin for the last input before button #}
+                        <label for="tags" class="form-label">Tags (separadas por vírgula, ex: paisagem, natureza, viagem):</label>
+                        <input type="text" class="form-control" id="tags" name="tags">
+                        <small class="form-text text-muted">As tags serão automaticamente formatadas com '#'.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar Foto</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('imagem').addEventListener('change', function(event) {
+        const [file] = event.target.files;
+        if (file) {
+            const imagePreview = document.getElementById('imagePreview');
+            imagePreview.innerHTML = ''; // Clear any previous preview
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.alt = 'Prévia da imagem selecionada'; // Add alt text for accessibility
+            img.classList.add('img-fluid', 'rounded'); // Bootstrap classes for responsive image
+            img.style.maxWidth = '300px'; // Optional: constrain preview size
+            img.style.maxHeight = '300px'; // Optional: constrain preview size
+            img.style.marginTop = '15px'; // Add some top margin
+
+            imagePreview.appendChild(img);
+        } else {
+            document.getElementById('imagePreview').innerHTML = ''; // Clear preview if no file selected
+        }
+    });
+</script>
+{% endblock %}

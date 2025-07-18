@@ -5,71 +5,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href = "{% static 'css/bootstrap.min.css' %}" rel = "stylesheet">
-    <title>{% block aba %}Template base{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}"> 
+    <link rel="icon" type="image/png" href="{% static 'favicon.png' %}"> 
+      <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}"> 
+
+    <title>{% block aba %}Minha Galeria{% endblock %}</title>
 </head>
 <body>
-    <!-- Responsive navbar-->
     <nav class="navbar navbar-expand-lg navbar-dark" style = "background-color:#008000;">
         <div class="container px-5">
-            <a class="navbar-brand" href="{% url 'home' %}">Diário de Notas</a>
+            <a class="navbar-brand" href="{% url 'home' %}">Minha Galeria</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'home' %}">Página inicial</a></li>
+                    
+                    {# Mantenha ou remova estes links se não forem implementados #}
                     <li class="nav-item"><a class="nav-link" href="#!">Sobre</a></li>
                     <li class="nav-item"><a class="nav-link" href="#!">Contato</a></li>
+                    
+                    <li class="nav-item"><a class="nav-link" href="{% url 'upload_foto' %}">Upload Foto</a></li>
+                    
+                    <li class="nav-item"><a class="nav-link" href="{% url 'galeria' %}">Galeria</a></li>
+                    
+                    {# Link para a página de Filtro na navbar #}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'filtrar_fotos' %}">Filtrar Fotos</a></li>
+
+                    {# Apenas um link de Logout é necessário #}
                     <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-    <!-- Page Content-->
     <div class="container px-4 px-lg-5">
         
-        <!-- Call to Action-->
         <div class="card text-white my-5 py-4 text-center" style = "background-color: #006400;">
-            <div class="card-body"><p class="text-white m-0">{% block titulo %}Seja bem-vindo(a) ao portal de notas, aqui você encontrará todos os dados das suas disciplinas.{% endblock %}</p></div>
+            <div class="card-body"><p class="text-white m-0">{% block titulo %}Bem-vindo(a) à sua Galeria Pessoal de Fotos! 🖼️{% endblock %}</p></div>
         </div>
-        <!-- Content Row-->
         <div class="row gx-4 gx-lg-5">
             {% block conteudo %}
             <div class="col-md-4 mb-5">
                 <div class="card h-100" style = "background-color: #D3D3D3;">
                     <div class="card-body" style = "background-color: #FFFFFF;">
-                        <h2 class="card-title">Lançar Notas</h2>
-                        <p class="card-text">Nesta opção você poderá lançar todas as notas referentes às suas disciplinas, discriminando todos os detalhes dos respectivos alunos.</p>
+                        <h2 class="card-title">Upload de Fotos</h2>
+                        <p class="card-text">Envie suas fotos para o seu acervo pessoal na galeria.</p>
                     </div>
-                    <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'lancar' %}">Clique aqui</a></div>
+                    <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'upload_foto' %}">Clique aqui</a></div>
                 </div>
             </div>
+
             <div class="col-md-4 mb-5">
                 <div class="card h-100" style = "background-color: #D3D3D3;">
                     <div class="card-body" style = "background-color: #FFFFFF;">
-                        <h2 class="card-title">Alterar Notas</h2>
-                        <p class="card-text">Nesta opção você poderá alterar todas as notas já lançadas referente às suas disciplinas, inclusive excluir alguma nota.</p>
+                        <h2 class="card-title">Galeria de Fotos</h2>
+                        <p class="card-text">Visualize todas as fotos que você enviou para a sua galeria pessoal.</p>
                     </div>
-                    <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'alterar' %}">Clique aqui</a></div>
+                    <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'galeria' %}">Clique aqui</a></div>
                 </div>
             </div>
+
+            {# NOVO CARD PARA FILTRAR FOTOS #}
             <div class="col-md-4 mb-5">
                 <div class="card h-100" style = "background-color: #D3D3D3;">
                     <div class="card-body" style = "background-color: #FFFFFF;">
-                        <h2 class="card-title">Visualizar Notas</h2>
-                        <p class="card-text">Nesta opção você poderá visualizar todas as notas já lanladas referente às suas disciplinas.</p>
+                        <h2 class="card-title">Filtrar Fotos</h2>
+                        <p class="card-text">Encontre fotos rapidamente por título, tags ou data de upload.</p>
                     </div>
-                    <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'visualizar' %}">Clique aqui</a></div>
+                    <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'filtrar_fotos' %}">Clique aqui</a></div>
                 </div>
             </div>
-        {% endblock %}   
+
+            {% endblock %}   
         </div>
     </div>
-    <!-- Footer-->
     <footer class="fixed-bottom" style = "background-color: #008000;">
-        <div class="container px-4 px-lg-5"><p class="m-0 text-center text-white">Copyright &copy; Diário de Notas 2025</p></div>
+        <div class="container px-4 px-lg-5"><p class="m-0 text-center text-white">Copyright &copy; Minha Galeria 2025</p></div>
     </footer>
-    <!-- Bootstrap core JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Core theme JS-->
     <script src="js/scripts.js"></script>    
 </body>
 </html>

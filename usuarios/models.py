@@ -1,9 +1,12 @@
 from django.db import models
+from django.contrib.auth.models import User
+class Foto(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    titulo = models.CharField(max_length=255)
+    descricao = models.TextField(blank=True, null=True)
+    imagem = models.ImageField(upload_to='fotos/', blank=True, null=True)
+    tags = models.CharField(max_length=255, blank=True, null=True, help_text="Separe as tags por vírgulas")
+    data_upload = models.DateTimeField(auto_now_add=True)
 
-class Nota(models.Model):
-    nome_aluno = models.CharField(max_length = 200)
-    disciplina = models.CharField(max_length = 200)
-    nota_atividades = models.IntegerField(default = 0)
-    nota_trabalho = models.IntegerField(default = 0)
-    nota_prova = models.IntegerField(default = 0)
-    media = models.FloatField(blank = True, default = 0)
+    def __str__(self):
+        return self.titulo
