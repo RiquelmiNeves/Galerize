@@ -128,7 +128,6 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-import os # Certifique-se de que esta linha esteja no topo do arquivo se ainda não estiver
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'fotos')
 MEDIA_URL = '/media/'

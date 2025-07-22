@@ -15,7 +15,7 @@
                 <form action="{% url 'editar_foto' foto.id %}" method="POST">
                     {% csrf_token %}
                     <div class="mb-3 text-center">
-                        {% if foto.imagem %} {# <-- MUDANÇA AQUI: de foto.url_imagem para foto.imagem #}
+                        {% if foto.imagem %}
                             <img src="{{ foto.imagem.url }}" class="img-fluid rounded mb-3" alt="{{ foto.titulo }}" style="max-width: 300px; max-height: 300px; object-fit: cover;"> {# <-- MUDANÇA AQUI: de foto.url_imagem para foto.imagem.url #}
                         {% else %}
                             <p>Prévia da imagem não disponível.</p>
@@ -31,12 +31,6 @@
                         <label for="descricao" class="form-label">Descrição:</label>
                         <textarea class="form-control" id="descricao" name="descricao" rows="3">{{ foto.descricao }}</textarea>
                     </div>
-                    <div class="mb-4">
-                        <label for="tags" class="form-label">Tags (separadas por vírgula, ex: #paisagem, #natureza):</label>
-                        <input type="text" class="form-control" id="tags" name="tags" value="{{ foto.tags_string }}">
-                        <small class="form-text text-muted">As tags serão automaticamente formatadas com '#'.</small>
-                    </div>
-                    
                     <div class="d-flex justify-content-between">
                         <button type="submit" class="btn btn-success">Atualizar Foto</button>
                         <a href="{% url 'galeria' %}" class="btn btn-secondary">Voltar para Galeria</a>

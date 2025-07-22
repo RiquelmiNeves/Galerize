@@ -12,23 +12,16 @@
     <nav class="navbar navbar-expand-lg navbar-dark" style = "background-color:#008000;">
         <div class="container px-5">
             <a class="navbar-brand" href="{% url 'home' %}">Minha Galeria</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'home' %}">Página inicial</a></li>
-                    
-                    {# Mantenha ou remova estes links se não forem implementados #}
-                    <li class="nav-item"><a class="nav-link" href="#!">Sobre</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#!">Contato</a></li>
                     
                     <li class="nav-item"><a class="nav-link" href="{% url 'upload_foto' %}">Upload Foto</a></li>
                     
                     <li class="nav-item"><a class="nav-link" href="{% url 'galeria' %}">Galeria</a></li>
                     
-                    {# Link para a página de Filtro na navbar #}
                     <li class="nav-item"><a class="nav-link" href="{% url 'filtrar_fotos' %}">Filtrar Fotos</a></li>
 
-                    {# Apenas um link de Logout é necessário #}
                     <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
                 </ul>
             </div>
@@ -50,7 +43,6 @@
                     <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'upload_foto' %}">Clique aqui</a></div>
                 </div>
             </div>
-
             <div class="col-md-4 mb-5">
                 <div class="card h-100" style = "background-color: #D3D3D3;">
                     <div class="card-body" style = "background-color: #FFFFFF;">
@@ -60,13 +52,11 @@
                     <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'galeria' %}">Clique aqui</a></div>
                 </div>
             </div>
-
-            {# NOVO CARD PARA FILTRAR FOTOS #}
             <div class="col-md-4 mb-5">
                 <div class="card h-100" style = "background-color: #D3D3D3;">
                     <div class="card-body" style = "background-color: #FFFFFF;">
                         <h2 class="card-title">Filtrar Fotos</h2>
-                        <p class="card-text">Encontre fotos rapidamente por título, tags ou data de upload.</p>
+                        <p class="card-text">Encontre fotos rapidamente por título ou data de upload.</p>
                     </div>
                     <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'filtrar_fotos' %}">Clique aqui</a></div>
                 </div>
@@ -76,7 +66,7 @@
         </div>
     </div>
     <footer class="fixed-bottom" style = "background-color: #008000;">
-        <div class="container px-4 px-lg-5"><p class="m-0 text-center text-white">Copyright &copy; Minha Galeria 2025</p></div>
+        <div class="container px-4 px-lg-5"><p class="m-0 text-center text-white">Copyright &copy;Galerize 2025</p></div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/scripts.js"></script>    
