@@ -1,0 +1,18 @@
+{% extends 'usuarios/base.html' %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Alterar Foto de Perfil</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="foto_perfil" class="form-label">Nova foto:</label>
+            <input type="file" name="foto_perfil" id="foto_perfil" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'usuarios/base.html' %}
+
+{% block aba %}Filtrar Fotos{% endblock %}
+{% block titulo %}Pesquisar e Filtrar Suas Fotos{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h3 class="mt-4 mb-4 text-white">Filtrar Minhas Fotos</h3>
+
+        <div class="card mb-4 shadow-sm" style="background-color: rgba(44, 44, 44, 0.85); color: white;">
+            <div class="card-body">
+                <form action="{% url 'filtrar_fotos' %}" method="GET" class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label for="tituloInput" class="form-label text-white">Título:</label>
+                        <input type="text" class="form-control" id="tituloInput" name="titulo" value="{{ current_titulo_query }}" placeholder="Buscar por título"
+                               style="background-color: #f8d3e5; color: #000;">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ordemSelect" class="form-label text-white">Ordenar por:</label>
+                        <select class="form-select" id="ordemSelect" name="ordem"
+                                style="background-color: #f8d3e5; color: #000;">
+                            <option value="">Escolha uma ordem</option>
+                            <option value="mais_recente" {% if current_ordem_query == 'mais_recente' %}selected{% endif %}>Mais recente</option>
+                            <option value="mais_antigo" {% if current_ordem_query == 'mais_antigo' %}selected{% endif %}>Mais antigo</option>
+                            <option value="az" {% if current_ordem_query == 'az' %}selected{% endif %}>Título (A - Z)</option>
+                            <option value="za" {% if current_ordem_query == 'za' %}selected{% endif %}>Título (Z - A)</option>
+                        </select>
+                    </div>
+                    <div class="col-12 mt-3 text-center">
+                        <button class="btn btn-primary me-2" type="submit">Aplicar Filtros</button>
+                        {% if current_titulo_query or current_ordem_query %}
+                            <a href="{% url 'filtrar_fotos' %}" class="btn btn-outline-light">Limpar Filtros</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <hr style="border-color: #555;">
+
+        {% if fotos %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 justify-content-center">
+            {% for foto in fotos %}
+            <div class="col d-flex justify-content-center">
+                <div style="
+                    background: white;
+                    padding: 14px;
+                    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    width: 100%;
+                    max-width: 280px;
+                ">
+                    <img src="{{ foto.imagem.url }}" alt="{{ foto.titulo }}" style="
+                        width: 100%;
+                        height: auto;
+                        max-height: 400px;
+                        object-fit: cover;
+                        border-bottom: 12px solid white;
+                    " />
+                    <div style="margin-top: 10px; color: #333; text-align: center;">
+                        <strong>{{ foto.titulo }}</strong><br>
+                        <small style="color: gray;">{{ foto.data_upload|date:"d/m/Y H:i" }}</small>
+                        <div class="mt-2 d-flex justify-content-center gap-2">
+                            <a href="{% url 'editar_foto_verificacao' id_foto=foto.id %}" class="btn btn-info btn-sm">Editar</a>
+                            <a href="{% url 'excluir_foto_verificacao' id_foto=foto.id %}" class="btn btn-danger btn-sm">Apagar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center py-5 text-white-50">Nenhuma foto encontrada com os critérios de busca. Tente refinar sua pesquisa ou limpe os filtros.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'usuarios/base.html' %}
+
+{% block aba %}Minha Galeria{% endblock %}
+{% block titulo %}Sua Galeria de Fotos{% endblock %}
+
+{% block content %}
+<h3 class="text-white">Minhas Fotos</h3>
+<p class="lead text-white-50">Explore suas fotos enviadas.</p>
+<hr style="border-color: #444;">
+
+<!-- Barra superior com filtro e botão -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <form method="GET" action="{% url 'galeria' %}" class="d-flex" style="gap: 10px;">
+        <input 
+            type="text" 
+            name="q" 
+            placeholder="Pesquisar por título ou descrição" 
+            class="form-control" 
+            value="{{ current_search_query }}"
+            style="background-color: #f8d3e5; color: #000;"
+        >
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
+    
+    <a href="{% url 'filtrar_fotos' %}" class="btn btn-info btn-lg">
+        Editar Fotos
+    </a>
+</div>
+
+<!-- Galeria de fotos estilo Polaroid -->
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+    {% for foto in fotos %}
+    <div class="col d-flex justify-content-center">
+        <div style="
+            background: white; 
+            padding: 16px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.25); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            max-width: 100%;
+        ">
+            <img src="{{ foto.imagem.url }}" alt="{{ foto.titulo }}" style="
+                width: 100%; 
+                max-width: 400px; 
+                height: auto; 
+                object-fit: contain;
+                border-bottom: 12px solid white;
+            " />
+            <div style="
+                margin-top: 8px; 
+                color: #333; 
+                text-align: center; 
+                font-size: 1rem;
+            ">
+                <strong>{{ foto.titulo }}</strong><br>
+                {% if foto.descricao %}
+                    <small style="color: gray;">{{ foto.descricao }}</small><br>
+                {% endif %}
+                <small style="color: gray;">{{ foto.criado_em|date:"d/m/Y" }}</small>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="lead text-white">Você ainda não tem fotos na galeria.</p>
+        <p><a href="{% url 'upload_foto' %}" class="btn btn-primary">Envie sua primeira foto!</a></p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
