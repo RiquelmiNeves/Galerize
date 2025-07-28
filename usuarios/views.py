@@ -5,7 +5,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login as login_django, logout as logout_django
 from django.contrib.auth.models import User
 from django.db.models import Q
-
+from .models import Profile
+import random
 from .models import Foto
 
 def login(request):
@@ -28,6 +29,15 @@ def logout(request):
         logout_django(request)
     return redirect('login') 
 
+import shutil
+import os
+from django.conf import settings
+from django.core.files import File
+
+import os
+from django.conf import settings
+from django.core.files import File
+
 def cadastro(request):
     if request.method == "GET":
         return render(request, 'usuarios/cadastro.html')
@@ -36,24 +46,28 @@ def cadastro(request):
         email = request.POST.get('email')
         password = request.POST.get('senha')
         first_name = request.POST.get('nome')
+        foto_perfil = request.FILES.get('foto_perfil')
 
-        user_exists = User.objects.filter(username=username).first() 
+        if User.objects.filter(username=username).exists():
+            return render(request, 'usuarios/cadastro.html', {'error_message': "Este e-mail já está cadastrado!"})
+        
+        user = User.objects.create_user(username=username, email=email, password=password, first_name=first_name)
+        user.save()
 
-        if user_exists:
-            return render(request, 'usuarios/cadastro.html', {'error_message': "Este e-mail já está cadastrado!"}) 
+        profile = Profile(user=user)
+        if foto_perfil:
+            profile.foto_perfil = foto_perfil
         else:
-            try:
-                user = User.objects.create_user(username=username, email=email, password=password, first_name=first_name)
-                user.save()
-                return redirect('login') 
-            except Exception as e:
-                print(f"Erro ao cadastrar usuário: {e}")
-                return render(request, 'usuarios/cadastro.html', {'error_message': "Ocorreu um erro ao tentar cadastrar. Tente novamente."})
+            caminho_padrao = os.path.join(settings.BASE_DIR, 'static', 'perfil', 'perfil.png')
+            with open(caminho_padrao, 'rb') as f:
+                profile.foto_perfil.save(f'perfil_padrao_user_{user.id}.png', File(f), save=False)
+        profile.save()
+
+        return redirect('login')
+
 
 def home(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    return render(request, 'usuarios/base.html') 
+    return dashboard(request)
 
 def upload_foto(request):
     if not request.user.is_authenticated:
@@ -166,25 +180,76 @@ def filtrar_fotos(request):
     fotos_filtradas = Foto.objects.filter(usuario=request.user)
 
     titulo_query = request.GET.get('titulo', '').strip()
-    data_query = request.GET.get('data', '').strip()
+    ordem_query = request.GET.get('ordem', '').strip()  # Nova variável
 
     if titulo_query:
         fotos_filtradas = fotos_filtradas.filter(titulo__icontains=titulo_query)
-    
-    if data_query:
-        try:
-            filter_date = datetime.datetime.strptime(data_query, '%Y-%m-%d').date()
-            fotos_filtradas = fotos_filtradas.filter(data_upload__date=filter_date)
-        except ValueError:
-            pass
-    
-    if not (titulo_query or data_query):
-        fotos_filtradas = fotos_filtradas.order_by('-data_upload')[:15]
-    else:
+
+    # Aplicar ordenação com base na opção selecionada
+    if ordem_query == 'mais_recente':
         fotos_filtradas = fotos_filtradas.order_by('-data_upload')
+    elif ordem_query == 'mais_antigo':
+        fotos_filtradas = fotos_filtradas.order_by('data_upload')
+    elif ordem_query == 'az':
+        fotos_filtradas = fotos_filtradas.order_by('titulo')
+    elif ordem_query == 'za':
+        fotos_filtradas = fotos_filtradas.order_by('-titulo')
+    else:
+        fotos_filtradas = fotos_filtradas.order_by('-data_upload')[:15]  # padrão
 
     return render(request, 'usuarios/filtrar_fotos.html', {
         'fotos': fotos_filtradas,
         'current_titulo_query': titulo_query,
-        'current_data_query': data_query,
+        'current_ordem_query': ordem_query,  # para manter a opção selecionada no formulário
     })
+
+
+def editar_foto_perfil(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    profile = request.user.profile
+
+    if request.method == 'POST':
+        nova_foto = request.FILES.get('foto_perfil')
+        if nova_foto:
+            profile.foto_perfil = nova_foto
+            profile.save()
+            return redirect('home')  
+    return render(request, 'usuarios/editar_perfil.html', {'profile': profile})
+
+def dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    user = request.user
+
+    fotos_usuario_logado = list(Foto.objects.filter(usuario=user).order_by('-data_upload')[:4])
+
+    total_fotos_necessarias = 15
+    faltando_para_15 = max(total_fotos_necessarias - len(fotos_usuario_logado), 0)
+
+
+    usuarios_aleatorios = list(User.objects.exclude(id=user.id))
+    random.shuffle(usuarios_aleatorios)
+
+    galeria_mista = []
+    for u in usuarios_aleatorios:
+        if len(galeria_mista) >= faltando_para_15:
+            break
+        fotos = list(Foto.objects.filter(usuario=u).order_by('-data_upload')[:3])
+        galeria_mista.extend(fotos)
+
+    return render(request, 'usuarios/base.html', {
+        'fotos_usuario_logado': fotos_usuario_logado,
+        'galeria_mista': galeria_mista[:faltando_para_15],  # Garante que só adiciona o necessário
+    })
+
+def sobre(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    return render(request, 'usuarios/sobre.html')
+
+def contato(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    return render(request, 'usuarios/Contato.html')
+

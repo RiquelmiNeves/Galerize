@@ -1,47 +1,72 @@
 {% extends 'usuarios/base.html' %}
+{% load static %}
 
 {% block aba %}Enviar Foto{% endblock %}
-
 {% block titulo %}Enviar Sua Foto{% endblock %}
 
-{% block conteudo %}
+{% block content %}
+<style>
+  body {
+    background-image: url("{% static 'img/background1.png' %}");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 100vh;
+  }
+</style>
+
 <div class="row justify-content-center">
     <div class="col-lg-8">
-        <div class="card mb-4">
+        <!-- Card com estilo escuro igual ao modelo -->
+        <div class="card mb-4 border-0 shadow rounded-3 my-5" style="background-color: #2c2c2c; color: white;">
             <div class="card-body">
-                <h3 class="card-title">Nova Postagem</h3>
+                <h3 class="card-title text-white">Nova Postagem</h3>
                 <p class="card-text text-muted">Preencha as informações para sua foto.</p>
-                <hr>
+                <hr style="border-color: #888;">
+
                 <form action="{% url 'upload_foto' %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
+                    
+                    <!-- Upload da Imagem -->
                     <div class="mb-3">
-                        <label for="imagem" class="form-label">Selecionar Imagem:</label>
-                        <input type="file" class="form-control" id="imagem" name="imagem" accept="image/*" required>
-                        <div id="imagePreview" class="mt-3 text-center">
-                        </div>
+                        <label for="imagem" class="form-label text-white">Selecionar Imagem:</label>
+                        <input type="file" class="form-control" id="imagem" name="imagem" accept="image/*" required
+                               style="background-color: #f8d3e5; color: #000;">
+                        <div id="imagePreview" class="mt-3 text-center"></div>
                     </div>
+
+                    <!-- Título -->
                     <div class="mb-3">
-                        <label for="titulo" class="form-label">Título da Foto:</label>
-                        <input type="text" class="form-control" id="titulo" name="titulo" required>
+                        <label for="titulo" class="form-label text-white">Título da Foto:</label>
+                        <input type="text" class="form-control" id="titulo" name="titulo" required
+                               style="background-color: #f8d3e5; color: #000;">
                     </div>
+
+                    <!-- Descrição -->
                     <div class="mb-3">
-                        <label for="descricao" class="form-label">Descrição (opcional):</label>
-                        <textarea class="form-control" id="descricao" name="descricao" rows="3"></textarea>
+                        <label for="descricao" class="form-label text-white">Descrição (opcional):</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="3"
+                                  style="background-color: #f8d3e5; color: #000;"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Enviar Foto</button>
+
+                    <!-- Botão -->
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary text-uppercase fw-bold">Enviar Foto</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Pré-visualização da imagem -->
 <script>
     document.getElementById('imagem').addEventListener('change', function(event) {
         const [file] = event.target.files;
-        if (file) {
-            const imagePreview = document.getElementById('imagePreview');
-            imagePreview.innerHTML = '';
+        const imagePreview = document.getElementById('imagePreview');
+        imagePreview.innerHTML = '';
 
+        if (file) {
             const img = document.createElement('img');
             img.src = URL.createObjectURL(file);
             img.alt = 'Prévia da imagem selecionada'; 
@@ -51,8 +76,6 @@
             img.style.marginTop = '15px';
 
             imagePreview.appendChild(img);
-        } else {
-            document.getElementById('imagePreview').innerHTML = ''; 
         }
     });
 </script>

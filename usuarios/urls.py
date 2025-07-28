@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from usuarios import views as usuarios_views
 
 urlpatterns = [
     path('login/', views.login, name = 'login'),
@@ -15,4 +16,7 @@ urlpatterns = [
     path('excluir_foto_verificacao/<int:id_foto>/', views.excluir_foto_verificacao, name='excluir_foto_verificacao'),
     path('excluir_foto/<int:id_foto>/', views.excluir_foto, name='excluir_foto'),
     path('filtrar_fotos/', views.filtrar_fotos, name='filtrar_fotos'),
+    path('editar-foto/', usuarios_views.editar_foto_perfil, name='editar_foto'),
+    path('sobre/', views.sobre, name='sobre'),
+    path('contato/', views.contato, name='contato'),
 ]

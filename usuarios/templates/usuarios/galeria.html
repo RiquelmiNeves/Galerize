@@ -1,41 +1,69 @@
 {% extends 'usuarios/base.html' %}
 
 {% block aba %}Minha Galeria{% endblock %}
-
 {% block titulo %}Sua Galeria de Fotos{% endblock %}
 
-{% block conteudo %}
-<h3>Minhas Fotos</h3>
-<p class="lead">Explore suas fotos enviadas.</p>
-<hr>
-<div class="mb-4 text"> 
-    <a href="{% url 'upload_foto' %}" class="btn btn-success btn-lg">
-        <i class="fas fa-plus-circle me-2"></i> Enviar Nova Foto
+{% block content %}
+<h3 class="text-white">Minhas Fotos</h3>
+<p class="lead text-white-50">Explore suas fotos enviadas.</p>
+<hr style="border-color: #444;">
+
+<!-- Barra superior com filtro e botão -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <form method="GET" action="{% url 'galeria' %}" class="d-flex" style="gap: 10px;">
+        <input 
+            type="text" 
+            name="q" 
+            placeholder="Pesquisar por título ou descrição" 
+            class="form-control" 
+            value="{{ current_search_query }}"
+            style="background-color: #f8d3e5; color: #000;"
+        >
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
+    
+    <a href="{% url 'filtrar_fotos' %}" class="btn btn-info btn-lg">
+        Editar Fotos
     </a>
 </div>
 
+<!-- Galeria de fotos estilo Polaroid -->
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
     {% for foto in fotos %}
-    <div class="col">
-        <div class="card h-100 shadow-sm">
-            <img src="{{ foto.imagem.url }}" class="card-img-top img-fluid" alt="{{ foto.titulo }}">
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title">{{ foto.titulo }}</h5>
+    <div class="col d-flex justify-content-center">
+        <div style="
+            background: white; 
+            padding: 16px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.25); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            max-width: 100%;
+        ">
+            <img src="{{ foto.imagem.url }}" alt="{{ foto.titulo }}" style="
+                width: 100%; 
+                max-width: 400px; 
+                height: auto; 
+                object-fit: contain;
+                border-bottom: 12px solid white;
+            " />
+            <div style="
+                margin-top: 8px; 
+                color: #333; 
+                text-align: center; 
+                font-size: 1rem;
+            ">
+                <strong>{{ foto.titulo }}</strong><br>
                 {% if foto.descricao %}
-                    <p class="card-text">{{ foto.descricao }}</p>
+                    <small style="color: gray;">{{ foto.descricao }}</small><br>
                 {% endif %}
-                <p class="card-text"><small class="text-muted">{{ foto.data_upload|date:"d/m/Y" }}</small></p>
-                
-                <div class="mt-3 d-flex justify-content-between">
-                    <a href="{% url 'editar_foto_verificacao' id_foto=foto.id %}" class="btn btn-sm btn-info">Editar</a>
-                    <a href="{% url 'excluir_foto_verificacao' id_foto=foto.id %}" class="btn btn-sm btn-danger">Excluir</a>
-                </div>
+                <small style="color: gray;">{{ foto.criado_em|date:"d/m/Y" }}</small>
             </div>
         </div>
     </div>
     {% empty %}
     <div class="col-12 text-center py-5">
-        <p class="lead">Você ainda não tem fotos na galeria.</p>
+        <p class="lead text-white">Você ainda não tem fotos na galeria.</p>
         <p><a href="{% url 'upload_foto' %}" class="btn btn-primary">Envie sua primeira foto!</a></p>
     </div>
     {% endfor %}

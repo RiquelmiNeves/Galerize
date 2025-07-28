@@ -2,73 +2,152 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href = "{% static 'css/bootstrap.min.css' %}" rel = "stylesheet">
-    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}"> 
-    <title>{% block aba %}Minha Galeria{% endblock %}</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.png' %}" />
+    <title>{% block aba %}Galerize{% endblock %}</title>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark" style = "background-color:#008000;">
-        <div class="container px-5">
-            <a class="navbar-brand" href="{% url 'home' %}">Minha Galeria</a>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'home' %}">Página inicial</a></li>
-                    
-                    <li class="nav-item"><a class="nav-link" href="{% url 'upload_foto' %}">Upload Foto</a></li>
-                    
-                    <li class="nav-item"><a class="nav-link" href="{% url 'galeria' %}">Galeria</a></li>
-                    
-                    <li class="nav-item"><a class="nav-link" href="{% url 'filtrar_fotos' %}">Filtrar Fotos</a></li>
+<body style="background-color: #121212;">
 
-                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <div class="container px-4 px-lg-5">
-        
-        <div class="card text-white my-5 py-4 text-center" style = "background-color: #006400;">
-            <div class="card-body"><p class="text-white m-0">{% block titulo %}Bem-vindo(a) à sua Galeria Pessoal de Fotos! 🖼️{% endblock %}</p></div>
-        </div>
-        <div class="row gx-4 gx-lg-5">
-            {% block conteudo %}
-            <div class="col-md-4 mb-5">
-                <div class="card h-100" style = "background-color: #D3D3D3;">
-                    <div class="card-body" style = "background-color: #FFFFFF;">
-                        <h2 class="card-title">Upload de Fotos</h2>
-                        <p class="card-text">Envie suas fotos para o seu acervo pessoal na galeria.</p>
-                    </div>
-                    <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'upload_foto' %}">Clique aqui</a></div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-5">
-                <div class="card h-100" style = "background-color: #D3D3D3;">
-                    <div class="card-body" style = "background-color: #FFFFFF;">
-                        <h2 class="card-title">Galeria de Fotos</h2>
-                        <p class="card-text">Visualize todas as fotos que você enviou para a sua galeria pessoal.</p>
-                    </div>
-                    <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'galeria' %}">Clique aqui</a></div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-5">
-                <div class="card h-100" style = "background-color: #D3D3D3;">
-                    <div class="card-body" style = "background-color: #FFFFFF;">
-                        <h2 class="card-title">Filtrar Fotos</h2>
-                        <p class="card-text">Encontre fotos rapidamente por título ou data de upload.</p>
-                    </div>
-                    <div class="card-footer"><a class="btn btn-primary btn-sm" href="{% url 'filtrar_fotos' %}">Clique aqui</a></div>
-                </div>
-            </div>
-
-            {% endblock %}   
+<!-- NAVBAR -->
+{% if request.user.is_authenticated %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#24292e;">
+    <div class="container px-5">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+            <img src="{% static 'img/logo.png' %}" alt="Logo Galerize" style="height: 100px;">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                <li class="nav-item"><a class="nav-link active" href="{% url 'home' %}">Página inicial</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'upload_foto' %}">Upload Foto</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'galeria' %}">Galeria</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'filtrar_fotos' %}">Filtrar Fotos</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'sobre' %}">Sobre</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'contato' %}">Contato</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                <li class="nav-item d-flex align-items-center ms-3">
+                    <a href="{% url 'editar_foto' %}" class="d-flex align-items-center text-decoration-none">
+                        {% with profile=request.user.profile %}
+                            {% if profile.foto_perfil and profile.foto_perfil.url %}
+                                <img src="{{ profile.foto_perfil.url }}" alt="Perfil" style="width: 35px; height: 35px; object-fit: cover; margin-right: 8px;" />
+                            {% else %}
+                                <img src="{% static 'perfil/perfil.png' %}" alt="Perfil padrão" style="width: 35px; height: 35px; object-fit: cover; margin-right: 8px;" />
+                            {% endif %}
+                        {% endwith %}
+                    </a>
+                    <span style="color: #F8F9FA;">Bem-vindo, {{ request.user.first_name|default:"Usuário" }}</span>
+                </li>
+            </ul>
         </div>
     </div>
-    <footer class="fixed-bottom" style = "background-color: #008000;">
-        <div class="container px-4 px-lg-5"><p class="m-0 text-center text-white">Copyright &copy;Galerize 2025</p></div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/scripts.js"></script>    
-</body>
-</html>
+</nav>
+{% else %}
+<div class="text-center my-4">
+    <img src="{% static 'img/logo.png' %}" alt="Logo Galerize" style="height: 120px;">
+</div>
+{% endif %}
+
+<!-- CONTEÚDO -->
+{% block content %}
+<div class="container px-4 px-lg-5">
+    <div class="card my-5 py-4 text-center" style="background-color: #e203aa;">
+        <div class="card-body">
+            <p class="m-0 text-white">{% block titulo %}Galeria compartilhada{% endblock %}</p>
+        </div>
+    </div>
+
+    <!-- ÍCONES -->
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+        <div class="col-md-4 mb-4 text-center">
+            <a href="{% url 'upload_foto' %}" style="transition: transform 0.3s ease;">
+                <img src="{% static 'img/upload.png' %}" alt="Upload de Fotos" style="max-height: 250px;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" />
+            </a>
+        </div>
+        <div class="col-md-4 mb-4 text-center">
+            <a href="{% url 'galeria' %}" style="transition: transform 0.3s ease;">
+                <img src="{% static 'img/galeria.png' %}" alt="Galeria de Fotos" style="max-height: 250px;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" />
+            </a>
+        </div>
+        <div class="col-md-4 mb-4 text-center">
+            <a href="{% url 'filtrar_fotos' %}" style="transition: transform 0.3s ease;">
+                <img src="{% static 'img/filtro.png' %}" alt="Filtrar Fotos" style="max-height: 250px;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" />
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- GALERIA -->
+{% if galeria_mista or fotos_usuario_logado %}
+<hr class="mt-5" />
+<div class="container my-4">
+    <h4 class="mb-4 text-center" style="color:#ffe8fd;">Galeria Geral e Suas Fotos Recentes</h4>
+
+    <div class="row justify-content-center">
+        {% if fotos_usuario_logado %}
+        <h5 class="mb-3" style="color:#a5d1ff;">Suas últimas fotos</h5>
+        {% for foto in fotos_usuario_logado %}
+        <div class="col-lg-3 col-md-4 col-sm-6 d-flex justify-content-center mb-4">
+            <div style="
+                background: white;
+                padding: 14px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                max-width: 240px;">
+                <img src="{{ foto.imagem.url }}" alt="{{ foto.titulo }}" style="
+                    width: 100%;
+                    height: 240px;
+                    object-fit: cover;
+                    border-bottom: 12px solid white;
+                    " />
+                <div style="margin-top: 8px; color: #333; text-align: center; font-size: 0.9rem;">
+                    <strong>{{ foto.titulo }}</strong><br>
+                    <small style="color: gray;">{{ foto.usuario.first_name|default:foto.usuario.username }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if galeria_mista %}
+        <h5 class="mb-3 mt-4" style="color:#fbd8ff;">Fotos de outros usuários</h5>
+        {% for foto in galeria_mista %}
+        <div class="col-lg-3 col-md-4 col-sm-6 d-flex justify-content-center mb-4">
+            <div style="
+                background: white;
+                padding: 12px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                max-width: 200px;">
+                <img src="{{ foto.imagem.url }}" alt="{{ foto.titulo }}" style="
+                    width: 100%;
+                    height: 180px;
+                    object-fit: cover;
+                    border-bottom: 12px solid white;
+                    " />
+                <div style="margin-top: 8px; color: #333; text-align: center; font-size: 0.85rem;">
+                    <strong>{{ foto.titulo }}</strong><br>
+                    <small style="color: gray;">{{ foto.usuario.first_name|default:foto.usuario.username }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+<!-- RODAPÉ -->
+<footer class="fixed-bottom" style="background-color: #0d0b8d;">
+    <div class="container px-4 px-lg-5">
+       

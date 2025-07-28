@@ -1,47 +1,107 @@
+{% extends 'usuarios/base.html' %}  <!--herdando do base.html p--> 
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href = "{% static 'css/bootstrap.min.css' %}" rel = "stylesheet">
-    <title>Cadastro de usuários</title>
-</head>
-<body>
-    <div class="container">
-        <div class="row">
-          <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
-            <div class="card border-0 shadow rounded-3 my-5">
-              <div class="card-body p-4 p-sm-5">
-                <h5 class="card-title text-center mb-5 fw-light fs-5">Cadastro de usuários</h5>
-                <form action = "{% url 'cadastro' %}" method = "POST">
-                    {% csrf_token %}
-                    <div class="form-floating mb-3">
-                        <input type="TEXT" class="form-control" id="floatingInput" placeholder="Name" name = "nome">
-                        <label for="floatingInput">Nome completo</label>
-                      </div>
-                  <div class="form-floating mb-3">
-                    <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" name = "email">
-                    <label for="floatingInput">E-mail</label>
-                  </div>
-                  <div class="form-floating mb-3">
-                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name = "senha">
-                    <label for="floatingPassword">Senha</label>
-                  </div>
-    
-                  <div class="d-grid mb-3">
-                    <button class="btn btn-primary btn-login text-uppercase fw-bold" type="submit">Cadastrar</button>
-                  </div>
-                  <hr class="my-4">
-                  
-                  <div class="d-grid">
-                    <a class="btn btn-success btn-block text-uppercase fw-bold" href="{% url 'login' %}">Já tem conta? Faça Login!</a>
-                  </div>
-                </form>
-              </div>
+
+{% block titulo %}Cadastro{% endblock %}
+
+{% block content %}
+<!-- Container centralizado-->
+<div class="container">
+  <div class="row">
+    <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+
+      <!-- card com backgroubd escuro-->
+      <div class="card border-0 shadow rounded-3 my-4" style="background-color: #2c2c2c; color: white;">
+        <div class="card-body p-4 p-sm-5">
+
+          <h5 class="card-title text-center mb-5 fw-light fs-5" style="color: white;">Cadastro de usuários</h5>
+
+          <form action="{% url 'cadastro' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- preview da foto de perfil, clicável para abrir o input file escondido -->
+            <img id="previewFotoPerfil" 
+                 src="{% static 'perfil/perfil.png' %}" 
+                 alt="Foto de Perfil (Clique para trocar)" 
+                 title="Clique para trocar a foto de perfil"
+                 style="cursor: pointer; width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 2px solid #ccc; display: block; margin: 0 auto 15px auto;" />
+
+            <!-- input file escondido para upload da foto -->
+            <input type="file" id="fotoPerfil" name="foto_perfil" accept="image/*" style="display: none;" />
+
+            <!--nome-->
+            <div class="form-floating mb-3">
+              <input 
+                type="text" 
+                class="form-control" 
+                id="floatingNome" 
+                placeholder="Nome completo" 
+                name="nome"
+                style="background-color: #f8d3e5; color: #000;">
+              <label for="floatingNome" style="color: #000;">Nome completo</label>
             </div>
-          </div>
+
+            <!--e-mail -->
+            <div class="form-floating mb-3">
+              <input 
+                type="email" 
+                class="form-control" 
+                id="floatingEmail" 
+                placeholder="name@example.com" 
+                name="email"
+                style="background-color: #f8d3e5; color: #000;">
+              <label for="floatingEmail" style="color: #000;">E-mail</label>
+            </div>
+
+            <!--senha -->
+            <div class="form-floating mb-3">
+              <input 
+                type="password" 
+                class="form-control" 
+                id="floatingPassword" 
+                placeholder="Senha" 
+                name="senha"
+                style="background-color: #f8d3e5; color: #000;">
+              <label for="floatingPassword" style="color: #000;">Senha</label>
+            </div>
+
+            <!-- Botão cadastrar -->
+            <div class="d-grid mb-3">
+              <button class="btn btn-primary btn-login text-uppercase fw-bold" type="submit">Cadastrar</button>
+            </div>
+
+            <hr class="my-4 border-light" />
+
+            <!-- Link para login -->
+            <div class="text-center mt-4">
+              <p class="mb-2">Já tem conta?</p>
+              <a href="{% url 'login' %}" class="btn btn-outline-light">Faça login</a>
+            </div>
         </div>
-      </div>   
-</body>
-</html>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const inputFile = document.getElementById('fotoPerfil');
+  const previewImg = document.getElementById('previewFotoPerfil');
+
+  // quando clicar na imagem, dispara o clique no input file escondido
+  previewImg.addEventListener('click', () => {
+    inputFile.click();
+  });
+
+  // quando selecionar arquivo, mostra preview da imagem selecionada
+  inputFile.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewImg.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+{% endblock %}
